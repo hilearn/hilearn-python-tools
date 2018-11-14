@@ -12,7 +12,7 @@ setup(
     tests_require=['nose'],
     packages=find_packages(exclude=['test', 'test.*']),
     name='hitools',
-    version='0.1',
+    version='0.0.1',
     description='Package of utility functions',
     long_description=long_description,
     long_description_content_type='text/markdown',
