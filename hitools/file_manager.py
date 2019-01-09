@@ -1,7 +1,7 @@
 import os
 import gzip
 import time
-
+import sys
 import boto3
 import ujson as json
 
@@ -45,6 +45,8 @@ class FileManager():
 
     def _upload(self, bucket):
         try_later_queue = []
+
+
         for uploading in self.uploading_files:
             try:
                 response = (bucket
@@ -54,9 +56,14 @@ class FileManager():
                             .get('HTTPStatusCode') == 200):
                     print("Uploaded %s, size: %d byte" %
                           (uploading.name, os.path.getsize(uploading.name)))
+
+                    sys.stdout.flush()
+
                     os.remove(uploading.name)
             except Exception as e:
                 print(e)
+                sys.stdout.flush()
+
                 try_later_queue.append(uploading)
         self.uploading_files = try_later_queue
 
@@ -66,20 +73,28 @@ class FileManager():
         :param run_time_seconds: seconds to run the file manager,
                                  pass 0 if forever
         """
+
+
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(self.bucket)
 
         prefix = os.path.join(self.data_dir, self.market)
+
         print('There are already {} objects in the directory.'
               .format(len(list(bucket.objects.filter(Prefix=prefix)))))
 
+        sys.stdout.flush()
         self._next_file()
         start = time.time()
         while True:
             while not self.msg_queue.empty():
                 self.file.write((json.dumps(self.msg_queue.get()) + '\n')
                                 .encode())
+
+
             if int(time.time()) > self.next_upload:
+
+
                 uploading = self.file
                 self._next_file()
 
@@ -89,4 +104,5 @@ class FileManager():
             if run_time_seconds:
                 if time.time() - start > run_time_seconds:
                     break
+
             time.sleep(1)
