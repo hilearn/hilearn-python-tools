@@ -12,13 +12,11 @@ setup(
     tests_require=['nose'],
     packages=find_packages(exclude=['test', 'test.*']),
     name='hitools',
-    version='0.0.1',
+    version='0.0.3',
     description='Package of utility functions',
     long_description=long_description,
     long_description_content_type='text/markdown',
     install_requires=[
-        'boto3==1.9.22',
-        'ujson==1.35',
+      'python-json-logger==0.1.11'
     ],
 )
-

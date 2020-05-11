@@ -1,4 +1,4 @@
 {
-  "phabricator.uri" : "http://phabricator.hilearn.io",
+  "phabricator.uri" : "https://phabricator.hilearn.io",
   "unit.engine" : "NoseTestEngine"
 }

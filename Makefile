@@ -1,25 +1,28 @@
-hash= $(shell ./bin/md5_hash.py requirements.txt)
-PYTHON_VERSION=3.6
-venv = .venv/py${PYTHON_VERSION}-${hash}
-dev = $DEVELOMPENT
-export DEVELOPMENT=false
-default: update_venv
+PROJECT = tools
+PYTHON=python3.7
+PYTHON_VERSION=$(shell ${PYTHON} --version 2>&1 | cut -c 8-10)
+venv_name = py${PYTHON_VERSION}-${PROJECT}
+venv = .venv/${venv_name}
 
+# Commands that activate and run virtual environment versions.
+_python = . ${venv}/bin/activate; python
+_pip = . ${venv}/bin/activate; pip
+
+default: update_venv
 .PHONY: default
 
-${venv}: requirements.txt
+${venv}/bin/pip: requirements.txt
 	python${PYTHON_VERSION} -m venv ${venv}
-	. ${venv}/bin/activate; pip install -r requirements.txt --cache .tmp/
+	${_pip} install -r requirements.txt --cache .tmp/
 
-update_venv: requirements.txt ${venv}
-	@rm -f .venv/current
-	@ln -s py${PYTHON_VERSION}-$(hash) .venv/current
+update_venv: requirements.txt ${venv}/bin/pip
+	${_pip} install -r requirements.txt --cache .tmp/
+	@ln -fs ${venv_name} .venv/current
 	@echo Success, to activate the development environment, run:
 	@echo "\tsource .venv/current/bin/activate"
+.PHONY: update_venv
 
-publish_pkg:
-	python${PYTHON_VERSION} -m pip install --user --upgrade setuptools wheel twine
-	python${PYTHON_VERSION} setup.py sdist bdist_wheel
-	python${PYTHON_VERSION} -m twine upload dist/*
-	@rm -rf dist/ build/ hitools.egg-info/
-
+publish:
+	${_python} setup.py sdist bdist_wheel
+	twine upload dist/*
+.PHONY: publish
